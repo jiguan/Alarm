@@ -218,8 +218,8 @@ public class Alarm extends JFrame implements ActionListener {
 		contentPanel.add(buttonB,c);
 		c.gridx = 2;
 		c.gridy = 1;
-		if(soundOn) buttonString = "Sound: on";
-		else buttonString = "Sound: off";
+		if(soundOn) buttonString = "Audio: on";
+		else buttonString = "Audio: off";
 		JButton buttonC = new JButton(buttonString);	
 		contentPanel.add(buttonC,c);
 		
@@ -250,11 +250,11 @@ public class Alarm extends JFrame implements ActionListener {
 	private void makeMenu() {
 		JMenu setting = new JMenu("Setting");
 		setting.setMnemonic('S');
-		JMenuItem item1 = new JMenuItem("Set the time");
+		JMenuItem item1 = new JMenuItem("Set up a time");
 		JMenuItem item2 = new JMenuItem("Reset");
-		JMenuItem item3 = new JMenuItem("Web open on/off");
-		JMenuItem item4 = new JMenuItem("Turn sound on/off");
-		JMenuItem item5 = new JMenuItem("Select sound");
+		JMenuItem item3 = new JMenuItem("Pop page on/off");
+		JMenuItem item4 = new JMenuItem("Turn audio on/off");
+		JMenuItem item5 = new JMenuItem("Select audio");
 		JMenuItem item6 = new JMenuItem("Timesheet URL");
 		item1.addActionListener(this);
 		item2.addActionListener(this);
@@ -352,8 +352,8 @@ public class Alarm extends JFrame implements ActionListener {
 			}
 		} else if(arg0.getSource()==menuList.get(0).getMenuComponent(2)) {
 			Object[] options = {"Turn on","Turn off"};
-			int result = JOptionPane.showOptionDialog(null, "Do you want to open Web or not?",
-					"Web open: on/off", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null,options, options[1]);
+			int result = JOptionPane.showOptionDialog(null, "Do you want to open the webpage or not?",
+					"Pop-up: on/off", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null,options, options[1]);
 			if(result==0) {
 				buttonList.get(3).setText("Pop page: on");
 				webOn = true;
@@ -364,13 +364,13 @@ public class Alarm extends JFrame implements ActionListener {
 			writeToFile(f,3,Boolean.toString(webOn));
 		} else if(arg0.getSource()==menuList.get(0).getMenuComponent(3)) {
 			Object[] options = {"Turn on","Turn off"};
-			int result = JOptionPane.showOptionDialog(null, "Do you want to turn sound on/off?",
-					"Turn sounds on/off", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null,options, options[1]);
+			int result = JOptionPane.showOptionDialog(null, "Do you want to turn the audio on/off?",
+					"Turn audio on/off", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null,options, options[1]);
 			if(result==0) {
-				buttonList.get(5).setText("Sound: on");
+				buttonList.get(5).setText("Audio: on");
 				soundOn = true;
 			} else {
-				buttonList.get(5).setText("Sound: off");
+				buttonList.get(5).setText("Audio: off");
 				soundOn = false;
 			}
 			writeToFile(f,2,Boolean.toString(soundOn));
@@ -385,10 +385,10 @@ public class Alarm extends JFrame implements ActionListener {
 			writeToFile(f,3,Boolean.toString(webOn));
 		} else if(arg0.getSource()==buttonList.get(5)) {
 			if(soundOn) {
-				buttonList.get(5).setText("Sound: off");
+				buttonList.get(5).setText("Audio: off");
 				soundOn = false;
 			} else {
-				buttonList.get(5).setText("Sound: on");
+				buttonList.get(5).setText("Audio: on");
 				soundOn = true;
 			}
 			writeToFile(f,2,Boolean.toString(soundOn));
@@ -409,7 +409,7 @@ public class Alarm extends JFrame implements ActionListener {
 			myPanel.add(new JLabel("Enter timesheet URL:"));
 			myPanel.add(urlField);	
 			int result = JOptionPane.showConfirmDialog(null, myPanel,
-					"Please hours", JOptionPane.OK_CANCEL_OPTION);
+					"Target URL", JOptionPane.OK_CANCEL_OPTION);
 			if (result == JOptionPane.OK_OPTION) {
 				String raw_url = urlField.getText();
 				HttpURLConnection connection = null;
