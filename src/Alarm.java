@@ -41,6 +41,12 @@ public class Alarm extends JFrame implements ActionListener {
 	static public boolean getWebFlag() {
 		return webOn;
 	}
+	static public String getSoundPath() {
+		return alarmSound;
+	}
+	static public URI getTargetWeb() {
+		return targetURL;
+	}
 	public Alarm() {
 		
 		makeMenu();
@@ -139,22 +145,20 @@ public class Alarm extends JFrame implements ActionListener {
 			fr = new FileReader(f);
 			br = new BufferedReader(fr);
 			ArrayList<String> inputLines = new ArrayList<String>();
-			for(int i=0;i<index;i++){				
-				String inputLine = "";
-				if((inputLine = br.readLine()) == null)  {
-					inputLine = "";
-				}
+			String inputLine = "";
+			while ((inputLine = br.readLine()) != null) {
 				inputLines.add(inputLine);
 			}
 			bw = new BufferedWriter(new FileWriter(f));
-			for(int i=0;i<=index;i++) {				
+			int length = Math.max(inputLines.size(), index+1);
+			for(int i=0;i<length;i++) {				
 				if(i==index) {
 					bw.write(line);
 					bw.newLine();
 					//System.out.println("Write setting into file "+line);
 				} else {
-					String inputLine = inputLines.get(i);
-					bw.write(inputLine);
+					String tmpLine = inputLines.get(i);
+					bw.write(tmpLine);
 					bw.newLine();
 				}
 			}
@@ -197,7 +201,7 @@ public class Alarm extends JFrame implements ActionListener {
 		
 
 		contentPanel.setPreferredSize(new Dimension(400,300));
-		count = new countDown(leftTime, leftSeconds, alarmSound, targetURL);
+		count = new countDown(leftTime, leftSeconds);
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		//c.ipady = 40;      //make this component tall
@@ -427,6 +431,10 @@ public class Alarm extends JFrame implements ActionListener {
 				    int code = connection.getResponseCode(); 
 				    //System.out.println((""+code).equals("200"));
 				    if(!(""+code).equals("200")) throw new IOException();
+				    else {
+				    	targetURL = URI.create(raw_url);
+				    	writeToFile(f,1,targetURL.toString());
+				    }
 					/*java.awt.Desktop.getDesktop().browse(tmpURL);
 					targetURL = tmpURL;*/
 				} catch (IOException e) {
@@ -449,7 +457,7 @@ public class Alarm extends JFrame implements ActionListener {
 			}
 		} else if(arg0.getSource()==menuList.get(1).getMenuComponent(1)) {
 			//about
-			String infoMessage = "Version: 1.0\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
+			String infoMessage = "Version: 1.01\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
     		String title = "Checkin Assistant";
     		JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -461,12 +469,8 @@ class countDown {
 	private Timer timer;
 	int seconds;
 	private JLabel label;
-	String alarmSound;
-	URI targetURL;
-	public countDown( JLabel label, int leftSeconds, String soundPath, URI targetURL) {
+	public countDown( JLabel label, int leftSeconds) {
 		seconds = leftSeconds;	
-		alarmSound = soundPath;
-		this.targetURL = targetURL;
 		this.label = label;
 		label.setText(getTime(seconds));
 		label.setFont(new Font("Calibri", Font.PLAIN, 100));
@@ -482,6 +486,7 @@ class countDown {
                 	timer.cancel();
                 	try {
                 		if(Alarm.getWebFlag()) {
+                			URI targetURL = Alarm.getTargetWeb();
                 			java.awt.Desktop.getDesktop().browse(targetURL);
                 		}
 					} catch (IOException e) {
@@ -492,6 +497,7 @@ class countDown {
 		        		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + title, JOptionPane.INFORMATION_MESSAGE);
 					}
                 	if(Alarm.getSoundFlag()) {
+                		String alarmSound = Alarm.getSoundPath();
 	            		SoundPlay sound_play = new SoundPlay(alarmSound);
 	            		Thread alarm = new Thread(sound_play);
 	            		alarm.start();

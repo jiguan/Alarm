@@ -1,4 +1,4 @@
-C:\Users\jiguan\workspace\Alarm\src\Ship_Bell.wav
-https://uisapp2.iu.edu/tk-prd/TimesheetDocument.do?method=open&liteMode=1&casticket=ST-1951767-1BcNbsNSxvLrD8c3t1SE-casprd04.uits.iu.edu
-true
+src/Ship_Bell.wav
+http://www.iciba.com/customized_production
+false
 true
