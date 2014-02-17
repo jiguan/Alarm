@@ -112,7 +112,7 @@ public class Alarm extends JFrame implements ActionListener {
 		} finally {
 			if(reader !=null) {
 				try { reader.close(); }
-				catch (IOException ignored) {}
+				catch (IOException e) {e.printStackTrace();}
 			}
 		}
 		return line;
@@ -122,6 +122,7 @@ public class Alarm extends JFrame implements ActionListener {
 	private void writeToFile(File f, int index, String line) {
 		BufferedReader br = null;
 		BufferedWriter bw = null;
+		FileReader fr = null;
 		try {
 			if(!f.exists()) {
 				f.createNewFile();
@@ -135,7 +136,8 @@ public class Alarm extends JFrame implements ActionListener {
 		}
 
 		try {
-			br = new BufferedReader(new FileReader(f));
+			fr = new FileReader(f);
+			br = new BufferedReader(fr);
 			ArrayList<String> inputLines = new ArrayList<String>();
 			for(int i=0;i<index;i++){				
 				String inputLine = "";
@@ -162,13 +164,17 @@ public class Alarm extends JFrame implements ActionListener {
     		String title = "Cannot write conf file";
     		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + title, JOptionPane.INFORMATION_MESSAGE);
 		} finally {
+			if(fr !=null) {
+				try { fr.close(); }
+				catch (IOException e) {e.printStackTrace();}
+			}
 			if(br !=null) {
 				try { br.close(); }
-				catch (IOException ignored) {}
+				catch (IOException e) {e.printStackTrace();}
 			}
 			if(bw !=null) {
 				try { bw.close(); }
-				catch (IOException ignored) {}
+				catch (IOException e) {e.printStackTrace();}
 			}
 		}
 	}
