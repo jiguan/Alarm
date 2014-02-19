@@ -1,6 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -29,7 +28,8 @@ public class Alarm extends JFrame implements ActionListener {
 	private int leftSeconds = 10;
 	private File f = new File("src/init.txt");
 	private static String alarmSound = "src/Ship_Bell.wav";
-	
+	private SystemTray tray;
+	private TrayIcon trayIcon;
 	private static URI targetURL = URI.create("https://uisapp2.iu.edu/tk-prd/TimesheetDocument.do?method=open&liteMode=1&casticket=ST-1951767-1BcNbsNSxvLrD8c3t1SE-casprd04.uits.iu.edu");
 	public static void main(String[] args){
 		// TODO Auto-generated method stub
@@ -48,7 +48,6 @@ public class Alarm extends JFrame implements ActionListener {
 		return targetURL;
 	}
 	public Alarm() {
-		
 		makeMenu();
 		readConf();
 		makeContent();
@@ -185,11 +184,97 @@ public class Alarm extends JFrame implements ActionListener {
 	
 	private void panelInit() {
 		setTitle("Clockin assistant");
+		setIconImage(Toolkit.getDefaultToolkit().getImage("src/clock.png"));
 		setSize(width, height);
 		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //System.out.println("creating instance");
+
+        if(SystemTray.isSupported()){
+            //System.out.println("system tray supported");
+            tray=SystemTray.getSystemTray();
+
+            Image image=Toolkit.getDefaultToolkit().getImage("src/clock.png");
+
+            ActionListener exitListener=new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    //System.out.println("Exiting....");
+                	if(count.getStatus()) {
+	                	int dialogButton = JOptionPane.YES_NO_OPTION;
+	                	int dialogResult = JOptionPane.showConfirmDialog (null, "You have a running task. Do you really want to exit?","Warning",dialogButton);
+	                	if(dialogResult == JOptionPane.YES_OPTION){
+	                		System.exit(0);
+	                	}
+                	} else {
+                		System.exit(0);
+                	}
+                }
+            };
+            PopupMenu popup=new PopupMenu();
+            MenuItem defaultItem=new MenuItem("Exit");
+            defaultItem.addActionListener(exitListener);
+            popup.add(defaultItem);
+            defaultItem=new MenuItem("Open");
+            defaultItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(true);
+                    setExtendedState(JFrame.NORMAL);
+                }
+            });
+            popup.add(defaultItem);
+            trayIcon=new TrayIcon(image, "Clock Assistant", popup);
+            trayIcon.setImageAutoSize(true);
+            trayIcon.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(true);
+                    setExtendedState(JFrame.NORMAL);
+                }
+            });
+        }else{
+            //System.out.println("system tray not supported");
+        }
+        addWindowStateListener(new WindowStateListener() {
+            public void windowStateChanged(WindowEvent e) {
+                if(e.getNewState()==ICONIFIED){
+                    try {
+                        tray.add(trayIcon);
+                        setVisible(false);
+                        //System.out.println("Min to tray");
+                    } catch (AWTException ex) {
+                    	String infoMessage = "Unable to add to tray";
+		        		String title = "Error";
+		        		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + title, JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+        if(e.getNewState()==7){
+                    try{
+            tray.add(trayIcon);
+            setVisible(false);
+            //System.out.println("added to SystemTray");
+            }catch(AWTException ex){
+            	String infoMessage = "Unable to add to tray";
+        		String title = "Error";
+        		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + title, JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+        if(e.getNewState()==MAXIMIZED_BOTH){
+                    tray.remove(trayIcon);
+                    setVisible(true);
+                    //System.out.println("Tray icon removed");
+                }
+                if(e.getNewState()==NORMAL){
+                    tray.remove(trayIcon);
+                    setVisible(true);
+                    //System.out.println("Tray icon removed");
+                }
+            }
+        });
+
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private void makeContent() {
@@ -297,8 +382,7 @@ public class Alarm extends JFrame implements ActionListener {
 			if(beginFlag==false) {		
 				//System.out.println("Start");
 				beginFlag = true;
-				suspendFlag = false;
-				
+				suspendFlag = false;				
 				count.start();
 			}
 		} else if (arg0.getSource()==buttonList.get(1)) {
@@ -344,7 +428,7 @@ public class Alarm extends JFrame implements ActionListener {
 
 					try {
 						String raw_hours = timeField.getText();
-						int seconds = raw_hours.equals("") ? 0 : (int) Double.parseDouble(raw_hours) * 3600;
+						int seconds = raw_hours.equals("") ? 0 : (int) (Double.parseDouble(raw_hours) * 3600);
 						String raw_mins = exceedField.getText();
 						int mins = raw_mins.equals("") ? 0 : Integer.parseInt(raw_mins)*60;
 						leftSeconds = seconds + mins;
@@ -457,7 +541,7 @@ public class Alarm extends JFrame implements ActionListener {
 			}
 		} else if(arg0.getSource()==menuList.get(1).getMenuComponent(1)) {
 			//about
-			String infoMessage = "Version: 1.01\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
+			String infoMessage = "Version: 1.02\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
     		String title = "Checkin Assistant";
     		JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -469,6 +553,10 @@ class countDown {
 	private Timer timer;
 	int seconds;
 	private JLabel label;
+	private boolean isRunning = false;
+	public boolean getStatus() {
+		return isRunning;
+	}
 	public countDown( JLabel label, int leftSeconds) {
 		seconds = leftSeconds;	
 		this.label = label;
@@ -476,6 +564,7 @@ class countDown {
 		label.setFont(new Font("Calibri", Font.PLAIN, 100));
 	}
 	public void start() {
+		isRunning = true;
 	    this.timer = new Timer();
 	    this.timer.schedule(new TimerTask() {   
             public void run() {
@@ -484,6 +573,7 @@ class countDown {
 				label.setText(time);
                 if (seconds< 0) {
                 	timer.cancel();
+                	isRunning = false;
                 	try {
                 		if(Alarm.getWebFlag()) {
                 			URI targetURL = Alarm.getTargetWeb();
@@ -508,6 +598,7 @@ class countDown {
 	}
 	public void pause() {
 		timer.cancel();
+		isRunning = true;
 	}
 	private String getTime(int seconds) {
     	int hour = seconds / 3600;
