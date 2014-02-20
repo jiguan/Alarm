@@ -188,8 +188,6 @@ public class Alarm extends JFrame implements ActionListener {
 		setSize(width, height);
 		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //System.out.println("creating instance");
 
@@ -225,7 +223,7 @@ public class Alarm extends JFrame implements ActionListener {
                 }
             });
             popup.add(defaultItem);
-            trayIcon=new TrayIcon(image, "Clock Assistant", popup);
+            trayIcon=new TrayIcon(image, "Clockin Assistant", popup);
             trayIcon.setImageAutoSize(true);
             trayIcon.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
