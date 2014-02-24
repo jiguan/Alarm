@@ -22,7 +22,6 @@ public class Alarm extends JFrame implements ActionListener {
 	private static boolean webOn = true;
 	private int width = 500;
 	private int height = 400;
-	private JPanel headPanel = new JPanel(new FlowLayout());
 	private JPanel contentPanel = new JPanel(new GridBagLayout());
 	private countDown count;
 	private int leftSeconds = 10;
@@ -30,7 +29,7 @@ public class Alarm extends JFrame implements ActionListener {
 	private static String alarmSound = "src/Ship_Bell.wav";
 	private SystemTray tray;
 	private TrayIcon trayIcon;
-	private static URI targetURL = URI.create("https://uisapp2.iu.edu/tk-prd/TimesheetDocument.do?method=open&liteMode=1&casticket=ST-1951767-1BcNbsNSxvLrD8c3t1SE-casprd04.uits.iu.edu");
+	private static URI targetURL = URI.create("https://uisapp2.iu.edu/kpme-prd/Clock.do?");
 	public static void main(String[] args){
 		// TODO Auto-generated method stub
 		Alarm alarm = new Alarm();
@@ -56,9 +55,7 @@ public class Alarm extends JFrame implements ActionListener {
 			menu.addActionListener(this);
 		}
 		panelInit();
-		add(headPanel, "North");
-		//add(buttonPanel,BorderLayout.SOUTH);
-		add(contentPanel, "Center");
+		
 	}
 	private void readConf() {
 		boolean flag = true;
@@ -188,7 +185,7 @@ public class Alarm extends JFrame implements ActionListener {
 		setSize(width, height);
 		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
-
+		add(contentPanel);
         //System.out.println("creating instance");
 
         if(SystemTray.isSupported()){
@@ -539,7 +536,7 @@ public class Alarm extends JFrame implements ActionListener {
 			}
 		} else if(arg0.getSource()==menuList.get(1).getMenuComponent(1)) {
 			//about
-			String infoMessage = "Version: 1.02\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
+			String infoMessage = "Version: 1.03\nAuthor: Jianqing\nEmail: jiguan@indiana.edu\nAny suggestion is welcome. ";
     		String title = "Checkin Assistant";
     		JOptionPane.showMessageDialog(null, infoMessage, title, JOptionPane.INFORMATION_MESSAGE);
 		}
